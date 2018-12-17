@@ -16,7 +16,7 @@
 typedef struct ngx_listening_s  ngx_listening_t;
 
 struct ngx_listening_s {
-    ngx_socket_t        fd;
+    ngx_socket_t        fd;  // 监听的socket，有继承过来的，平滑重启
 
     struct sockaddr    *sockaddr;
     socklen_t           socklen;    /* size of sockaddr */

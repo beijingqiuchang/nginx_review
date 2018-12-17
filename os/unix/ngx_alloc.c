@@ -11,7 +11,7 @@
 
 ngx_uint_t  ngx_pagesize;
 ngx_uint_t  ngx_pagesize_shift;
-ngx_uint_t  ngx_cacheline_size;  // cache line的大小
+ngx_uint_t  ngx_cacheline_size;  // cpu cache line size; 这个不是cache l1的大小，而是cache与主内存交换数据的大小
 
 
 void *

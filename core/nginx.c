@@ -265,6 +265,7 @@ main(int argc, char *const *argv)
         return 1;
     }
 
+    // 获取系统信息：1、进程名修改；2、pagesize；3、cacheline；4、cup核数；5、进程打开的最大文件数
     if (ngx_os_init(log) != NGX_OK) {
         return 1;
     }
@@ -280,9 +281,10 @@ main(int argc, char *const *argv)
     /*
      * ngx_slab_sizes_init() requires ngx_pagesize set in ngx_os_init()
      */
-
+    // slab 的管理，后面再研究
     ngx_slab_sizes_init();
 
+    // 为了平滑重启，继承环境变量中的socket
     if (ngx_add_inherited_sockets(&init_cycle) != NGX_OK) {
         return 1;
     }
@@ -450,7 +452,7 @@ ngx_show_version_info(void)
     }
 }
 
-
+// 平滑重启
 static ngx_int_t
 ngx_add_inherited_sockets(ngx_cycle_t *cycle)
 {
@@ -467,6 +469,7 @@ ngx_add_inherited_sockets(ngx_cycle_t *cycle)
     ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0,
                   "using inherited sockets from \"%s\"", inherited);
 
+    // cycle->listening初始化
     if (ngx_array_init(&cycle->listening, cycle->pool, 10,
                        sizeof(ngx_listening_t))
         != NGX_OK)

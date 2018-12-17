@@ -10,7 +10,7 @@
 #include <nginx.h>
 
 
-ngx_int_t   ngx_ncpu;
+ngx_int_t   ngx_ncpu;  // cpu的个数
 ngx_int_t   ngx_max_sockets;  // 进程能打开的最大文件数
 ngx_uint_t  ngx_inherited_nonblocking;
 ngx_uint_t  ngx_tcp_nodelay_and_tcp_nopush;
@@ -72,7 +72,7 @@ ngx_os_init(ngx_log_t *log)
     }
 #endif
 
-    ngx_cpuinfo();
+    ngx_cpuinfo();  // cpu的信息：cache的大小
 
     // 进程最大打开的文件数
     if (getrlimit(RLIMIT_NOFILE, &rlmt) == -1) {
