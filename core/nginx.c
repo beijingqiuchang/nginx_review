@@ -289,6 +289,7 @@ main(int argc, char *const *argv)
         return 1;
     }
 
+    // 把预先设定好的模块编号处理
     if (ngx_preinit_modules() != NGX_OK) {
         return 1;
     }

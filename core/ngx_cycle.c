@@ -66,12 +66,14 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
 
     log = old_cycle->log;
 
+    // 创建一个内存池
     pool = ngx_create_pool(NGX_CYCLE_POOL_SIZE, log);
     if (pool == NULL) {
         return NULL;
     }
     pool->log = log;
 
+    // 从内存池中分配cycle的内存
     cycle = ngx_pcalloc(pool, sizeof(ngx_cycle_t));
     if (cycle == NULL) {
         ngx_destroy_pool(pool);
@@ -605,6 +607,7 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
         }
     }
 
+    // 把需要监听的端口生成socket加入到listenning数组中
     if (ngx_open_listening_sockets(cycle) != NGX_OK) {
         goto failed;
     }

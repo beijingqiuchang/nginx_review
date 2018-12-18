@@ -38,7 +38,7 @@ struct ngx_shm_zone_s {
 
 struct ngx_cycle_s {
     void                  ****conf_ctx;
-    ngx_pool_t               *pool;
+    ngx_pool_t               *pool;  //  内存池
 
     ngx_log_t                *log;
     ngx_log_t                 new_log;
@@ -73,7 +73,7 @@ struct ngx_cycle_s {
     ngx_event_t              *read_events;
     ngx_event_t              *write_events;
 
-    ngx_cycle_t              *old_cycle;
+    ngx_cycle_t              *old_cycle;  // 在最开始的时候初始化的init_cycle
 
     ngx_str_t                 conf_file;
     ngx_str_t                 conf_param;

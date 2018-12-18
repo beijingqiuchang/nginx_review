@@ -274,8 +274,8 @@ ngx_int_t ngx_add_module(ngx_conf_t *cf, ngx_str_t *file,
     ngx_module_t *module, char **order);
 
 
-extern ngx_module_t  *ngx_modules[];
-extern ngx_uint_t     ngx_max_module;
+extern ngx_module_t  *ngx_modules[];  // 在编译的时候会生成
+extern ngx_uint_t     ngx_max_module;  // 在编译的时候会生成
 
 extern char          *ngx_module_names[];
 
