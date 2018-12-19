@@ -49,7 +49,7 @@ struct ngx_cycle_s {
     ngx_connection_t         *free_connections;
     ngx_uint_t                free_connection_n;
 
-    ngx_module_t            **modules;
+    ngx_module_t            **modules;  // 把ngx_modules的数据copy过来
     ngx_uint_t                modules_n;
     ngx_uint_t                modules_used;    /* unsigned  modules_used:1; */
 

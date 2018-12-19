@@ -331,6 +331,8 @@ main(int argc, char *const *argv)
         return 0;
     }
 
+
+    // 发送信号的模式，发送后直接返回
     if (ngx_signal) {
         return ngx_signal_process(cycle, ngx_signal);
     }
