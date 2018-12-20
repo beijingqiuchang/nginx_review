@@ -586,6 +586,7 @@ tz_found:
         *last = n;
 
     } else {
+        // 这里是生成一个自定义释放内存的指针，指向刚申请好的env这块内存
         cln = ngx_pool_cleanup_add(cycle->pool, 0);
         if (cln == NULL) {
             return NULL;

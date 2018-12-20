@@ -28,8 +28,8 @@ static void ngx_cache_manager_process_handler(ngx_event_t *ev);
 static void ngx_cache_loader_process_handler(ngx_event_t *ev);
 
 
-ngx_uint_t    ngx_process;
-ngx_uint_t    ngx_worker;
+ngx_uint_t    ngx_process;  // 标识自己是master,slave
+ngx_uint_t    ngx_worker;  // 第几个进程
 ngx_pid_t     ngx_pid;
 ngx_pid_t     ngx_parent;
 
@@ -812,6 +812,7 @@ ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
         }
     }
 
+    // 如果没有设置，就设置进程最大能打开的文件数
     if (ccf->rlimit_nofile != NGX_CONF_UNSET) {
         rlmt.rlim_cur = (rlim_t) ccf->rlimit_nofile;
         rlmt.rlim_max = (rlim_t) ccf->rlimit_nofile;
@@ -888,6 +889,7 @@ ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
 #endif
     }
 
+    // 绑定cpu
     if (worker >= 0) {
         cpu_affinity = ngx_get_cpu_affinity(worker);
 
@@ -935,6 +937,7 @@ ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
         ls[i].previous = NULL;
     }
 
+    // 每个模块进行初始化
     for (i = 0; cycle->modules[i]; i++) {
         if (cycle->modules[i]->init_process) {
             if (cycle->modules[i]->init_process(cycle) == NGX_ERROR) {

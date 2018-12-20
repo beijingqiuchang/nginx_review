@@ -97,7 +97,7 @@ typedef struct {
     ngx_int_t                 rlimit_nofile;
     off_t                     rlimit_core;
 
-    int                       priority;
+    int                       priority;  // 进程的优先级
 
     ngx_uint_t                cpu_affinity_auto;
     ngx_uint_t                cpu_affinity_n;
@@ -113,8 +113,8 @@ typedef struct {
     ngx_str_t                 pid;
     ngx_str_t                 oldpid;
 
-    ngx_array_t               env;
-    char                    **environment;
+    ngx_array_t               env;  // 数组的形式存储着环境的信息
+    char                    **environment;  // 数组的形式，环境信息
 
     ngx_uint_t                transparent;  /* unsigned  transparent:1; */
 } ngx_core_conf_t;
