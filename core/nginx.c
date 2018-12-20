@@ -343,6 +343,7 @@ main(int argc, char *const *argv)
 
     ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 
+    // ccf->master = NGX_CONF_UNSET       -1
     if (ccf->master && ngx_process == NGX_PROCESS_SINGLE) {
         ngx_process = NGX_PROCESS_MASTER;
     }
@@ -367,10 +368,12 @@ main(int argc, char *const *argv)
 
 #endif
 
+    // 创建Pid
     if (ngx_create_pidfile(&ccf->pid, cycle->log) != NGX_OK) {
         return 1;
     }
 
+    // 日志重定向 dup2的使用可以学习
     if (ngx_log_redirect_stderr(cycle) != NGX_OK) {
         return 1;
     }

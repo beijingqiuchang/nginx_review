@@ -97,6 +97,7 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
     sigaddset(&set, ngx_signal_value(NGX_SHUTDOWN_SIGNAL));
     sigaddset(&set, ngx_signal_value(NGX_CHANGEBIN_SIGNAL));
 
+    // 先暂时的堵塞这些信号，注意不是忽略，而是堵塞住
     if (sigprocmask(SIG_BLOCK, &set, NULL) == -1) {
         ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
                       "sigprocmask() failed");
@@ -123,11 +124,13 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
         p = ngx_cpystrn(p, (u_char *) ngx_argv[i], size);
     }
 
+    // 主进程自己设置为master process名字
     ngx_setproctitle(title);
 
 
     ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 
+    // 开始worker进程
     ngx_start_worker_processes(cycle, ccf->worker_processes,
                                NGX_PROCESS_RESPAWN);
     ngx_start_cache_manager_processes(cycle, 0);
@@ -363,6 +366,12 @@ ngx_start_worker_processes(ngx_cycle_t *cycle, ngx_int_t n, ngx_int_t type)
         ch.slot = ngx_process_slot;
         ch.fd = ngx_processes[ngx_process_slot].channel[0];
 
+        // 通知已经创建的进程，新的进程信息
+        // 这里有一个点需要注意：看这里是只是通知了创建的进程
+        // 但实际上是每个进程都会存储了全部worker的信息。
+        // 因为新创建的进程，会继承ngx_processes的信息，也就是当创建第4个进程时
+        // 第4个进程已经知道前3个进程的信息了。后面再创建进程时，再通知之前的
+        // 也就完成了每个进程都要全部进程的信息
         ngx_pass_open_channel(cycle, &ch);
     }
 }
