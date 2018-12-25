@@ -33,10 +33,10 @@ ngx_uint_t    ngx_worker;  // 第几个进程
 ngx_pid_t     ngx_pid;
 ngx_pid_t     ngx_parent;
 
-sig_atomic_t  ngx_reap;
+sig_atomic_t  ngx_reap;  // 收到SIGCHLD信号
 sig_atomic_t  ngx_sigio;
-sig_atomic_t  ngx_sigalrm;
-sig_atomic_t  ngx_terminate;
+sig_atomic_t  ngx_sigalrm;  // 收到SIGALRM信号
+sig_atomic_t  ngx_terminate;  // 收到SIGINT信号
 sig_atomic_t  ngx_quit;
 sig_atomic_t  ngx_debug_quit;
 ngx_uint_t    ngx_exiting;
@@ -103,6 +103,7 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
                       "sigprocmask() failed");
     }
 
+    // 这里清空set，为了sigsuspend做准备
     sigemptyset(&set);
 
 
@@ -133,6 +134,8 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
     // 开始worker进程
     ngx_start_worker_processes(cycle, ccf->worker_processes,
                                NGX_PROCESS_RESPAWN);
+
+    // 启动cache管理的两个进程
     ngx_start_cache_manager_processes(cycle, 0);
 
     ngx_new_binary = 0;
@@ -141,6 +144,9 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
     live = 1;
 
     for ( ;; ) {
+
+        // delay用来设置等待worker进程退出的时间，master接受退出信号后，  
+        // 首先发送退出信号给worker，而worker退出需要一些时间 
         if (delay) {
             if (ngx_sigalrm) {
                 sigio = 0;
@@ -164,6 +170,8 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
 
         ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "sigsuspend");
 
+        // 堵塞进程，等待除了set中的信号以外的信号触发(但是由于set已经是空得了，所以就是来了任何信号
+        // 等待信号处理结束后，都会使sigsuspend返回)
         sigsuspend(&set);
 
         ngx_time_update();
@@ -171,10 +179,11 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
         ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0,
                        "wake up, sigio %i", sigio);
 
+        // 收到worker进程退出
         if (ngx_reap) {
             ngx_reap = 0;
             ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "reap children");
-
+            // 新启一个worker
             live = ngx_reap_children(cycle);
         }
 
@@ -224,6 +233,7 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
         if (ngx_reconfigure) {
             ngx_reconfigure = 0;
 
+            // 与热更新有关系，后面再补
             if (ngx_new_binary) {
                 ngx_start_worker_processes(cycle, ccf->worker_processes,
                                            NGX_PROCESS_RESPAWN);
@@ -403,6 +413,7 @@ ngx_start_cache_manager_processes(ngx_cycle_t *cycle, ngx_uint_t respawn)
         return;
     }
 
+    // 再起一个进程，处理函数ngx_cache_manager_process_cycle
     ngx_spawn_process(cycle, ngx_cache_manager_process_cycle,
                       &ngx_cache_manager_ctx, "cache manager process",
                       respawn ? NGX_PROCESS_JUST_RESPAWN : NGX_PROCESS_RESPAWN);
@@ -432,7 +443,7 @@ ngx_start_cache_manager_processes(ngx_cycle_t *cycle, ngx_uint_t respawn)
     ngx_pass_open_channel(cycle, &ch);
 }
 
-
+// 通知已经启动的进程，新启进程的信息
 static void
 ngx_pass_open_channel(ngx_cycle_t *cycle, ngx_channel_t *ch)
 {
@@ -593,6 +604,7 @@ ngx_reap_children(ngx_cycle_t *cycle)
             continue;
         }
 
+        // 进程退出了
         if (ngx_processes[i].exited) {
 
             if (!ngx_processes[i].detached) {
@@ -617,7 +629,7 @@ ngx_reap_children(ngx_cycle_t *cycle)
                                    ch.slot, ch.pid, ngx_processes[n].pid);
 
                     /* TODO: NGX_AGAIN */
-
+                    // 通知其他进程，关闭这个sockpair
                     ngx_write_channel(ngx_processes[n].channel[0],
                                       &ch, sizeof(ngx_channel_t), cycle->log);
                 }
@@ -628,6 +640,7 @@ ngx_reap_children(ngx_cycle_t *cycle)
                 && !ngx_terminate
                 && !ngx_quit)
             {
+                // 重新启动这个进程
                 if (ngx_spawn_process(cycle, ngx_processes[i].proc,
                                       ngx_processes[i].data,
                                       ngx_processes[i].name, i)
@@ -644,7 +657,7 @@ ngx_reap_children(ngx_cycle_t *cycle)
                 ch.pid = ngx_processes[ngx_process_slot].pid;
                 ch.slot = ngx_process_slot;
                 ch.fd = ngx_processes[ngx_process_slot].channel[0];
-
+                // 通知其他worker，有一个新的worker加入
                 ngx_pass_open_channel(cycle, &ch);
 
                 live = 1;

@@ -31,7 +31,7 @@ char           **ngx_argv;
 char           **ngx_os_argv;
 
 ngx_int_t        ngx_process_slot;  // ngx_processes的元素个数
-ngx_socket_t     ngx_channel;
+ngx_socket_t     ngx_channel;  // ngx_channel = ngx_processes[s].channel[1];
 ngx_int_t        ngx_last_process;
 ngx_process_t    ngx_processes[NGX_MAX_PROCESSES];  // 每个进程有一个sockpair
 
@@ -95,6 +95,7 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
         s = respawn;
 
     } else {
+        // 找到一个还没有用的ngx_last_process
         for (s = 0; s < ngx_last_process; s++) {
             if (ngx_processes[s].pid == -1) {
                 break;
