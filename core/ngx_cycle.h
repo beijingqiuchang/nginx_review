@@ -45,16 +45,16 @@ struct ngx_cycle_s {
 
     ngx_uint_t                log_use_stderr;  /* unsigned  log_use_stderr:1; */
 
-    ngx_connection_t        **files;
+    ngx_connection_t        **files;  // 数组，长度为最大能打开的文件数
     ngx_connection_t         *free_connections;
-    ngx_uint_t                free_connection_n;
+    ngx_uint_t                free_connection_n;  // 剩余可用的链接队列
 
     ngx_module_t            **modules;  // 把ngx_modules的数据copy过来
     ngx_uint_t                modules_n;
     ngx_uint_t                modules_used;    /* unsigned  modules_used:1; */
 
-    ngx_queue_t               reusable_connections_queue;
-    ngx_uint_t                reusable_connections_n;
+    ngx_queue_t               reusable_connections_queue;  // 长连接队列
+    ngx_uint_t                reusable_connections_n;  // 长连接的个数
 
     ngx_array_t               listening;  // 监听的socket
     ngx_array_t               paths;
@@ -67,7 +67,7 @@ struct ngx_cycle_s {
     ngx_list_t                shared_memory;
 
     ngx_uint_t                connection_n;
-    ngx_uint_t                files_n;
+    ngx_uint_t                files_n;  // 直接在初始化的时候，就获取好最大嫩刚打开多少个文件
 
     ngx_connection_t         *connections;
     ngx_event_t              *read_events;

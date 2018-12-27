@@ -1109,6 +1109,7 @@ ngx_get_connection(ngx_socket_t s, ngx_log_t *log)
 
     c = ngx_cycle->free_connections;
 
+    // 如果可用的链接不足，就从长连接中，删除一些，复用
     if (c == NULL) {
         ngx_drain_connections((ngx_cycle_t *) ngx_cycle);
         c = ngx_cycle->free_connections;
@@ -1312,6 +1313,7 @@ ngx_drain_connections(ngx_cycle_t *cycle)
                        "reusing connection");
 
         c->close = 1;
+        // 调用的是 ngx_http_keepalive_handler 函数，由于close=1,所以就会关闭socket
         c->read->handler(c->read);
     }
 }

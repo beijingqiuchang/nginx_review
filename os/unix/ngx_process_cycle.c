@@ -754,6 +754,9 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
     ngx_process = NGX_PROCESS_WORKER;
     ngx_worker = worker;
 
+    // 初始化工作，修改worker的进程名字
+    // 绑定cpu，把sockpair加入到全局epoll
+    // 调用各个module的init_process
     ngx_worker_process_init(cycle, worker);
 
     ngx_setproctitle("worker process");

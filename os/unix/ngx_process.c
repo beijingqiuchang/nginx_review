@@ -31,7 +31,7 @@ char           **ngx_argv;
 char           **ngx_os_argv;
 
 ngx_int_t        ngx_process_slot;  // ngx_processes的元素个数
-ngx_socket_t     ngx_channel;  // ngx_channel = ngx_processes[s].channel[1];
+ngx_socket_t     ngx_channel;  // ngx_channel = ngx_processes[s].channel[1];  对应的处理函数：ngx_channel_handler
 ngx_int_t        ngx_last_process;
 ngx_process_t    ngx_processes[NGX_MAX_PROCESSES];  // 每个进程有一个sockpair
 
