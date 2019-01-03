@@ -1145,6 +1145,7 @@ ngx_get_connection(ngx_socket_t s, ngx_log_t *log)
     ngx_memzero(rev, sizeof(ngx_event_t));
     ngx_memzero(wev, sizeof(ngx_event_t));
 
+    // instance取反
     rev->instance = !instance;
     wev->instance = !instance;
 

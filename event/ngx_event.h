@@ -41,7 +41,7 @@ struct ngx_event_s {
      * the event was passed or would be passed to a kernel;
      * in aio mode - operation was posted.
      */
-    unsigned         active:1;
+    unsigned         active:1; // 是否已经加入到epoll中
 
     unsigned         disabled:1;
 
@@ -489,7 +489,7 @@ extern ngx_atomic_t  *ngx_stat_waiting;
 
 
 #define NGX_UPDATE_TIME         1
-#define NGX_POST_EVENTS         2
+#define NGX_POST_EVENTS         2  // 已经抢锁并且把监听事件放到了epoll中
 
 
 extern sig_atomic_t           ngx_event_timer_alarm;

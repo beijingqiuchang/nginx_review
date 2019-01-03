@@ -49,7 +49,7 @@ ngx_atomic_t         *ngx_connection_counter = &connection_counter;
 
 
 ngx_atomic_t         *ngx_accept_mutex_ptr;
-ngx_shmtx_t           ngx_accept_mutex;
+ngx_shmtx_t           ngx_accept_mutex;  // 进程间的互斥锁
 ngx_uint_t            ngx_use_accept_mutex;
 ngx_uint_t            ngx_accept_events;
 ngx_uint_t            ngx_accept_mutex_held;
@@ -201,6 +201,8 @@ ngx_process_events_and_timers(ngx_cycle_t *cycle)
         flags = 0;
 
     } else {
+        // 从时间任务的rb树中，找到一个距离最近的时间
+        // https://www.cnblogs.com/549294286/p/6058774.html
         timer = ngx_event_find_timer();
         flags = NGX_UPDATE_TIME;
 
@@ -239,6 +241,7 @@ ngx_process_events_and_timers(ngx_cycle_t *cycle)
 
     delta = ngx_current_msec;
 
+    // ngx_epoll_process_events
     (void) ngx_process_events(cycle, timer, flags);
 
     delta = ngx_current_msec - delta;
@@ -253,6 +256,7 @@ ngx_process_events_and_timers(ngx_cycle_t *cycle)
     }
 
     if (delta) {
+        // 处理定时任务 rb_tree
         ngx_event_expire_timers();
     }
 
@@ -509,7 +513,7 @@ ngx_event_module_init(ngx_cycle_t *cycle)
 
     shared = shm.addr;
 
-    ngx_accept_mutex_ptr = (ngx_atomic_t *) shared;
+    ngx_accept_mutex_ptr = (ngx_atomic_t *) shared;  // 把共享内存转为一个atomic的结构
     ngx_accept_mutex.spin = (ngx_uint_t) -1;
 
     if (ngx_shmtx_create(&ngx_accept_mutex, (ngx_shmtx_sh_t *) shared,

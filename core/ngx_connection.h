@@ -123,8 +123,8 @@ typedef enum {
 
 struct ngx_connection_s {
     void               *data;
-    ngx_event_t        *read;
-    ngx_event_t        *write;
+    ngx_event_t        *read;  // 读事件
+    ngx_event_t        *write;  // 写事件
 
     ngx_socket_t        fd;
 

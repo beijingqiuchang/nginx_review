@@ -23,7 +23,7 @@ typedef struct {
 
 typedef struct {
 #if (NGX_HAVE_ATOMIC_OPS)
-    ngx_atomic_t  *lock;
+    ngx_atomic_t  *lock;  // 指向共享内存
 #if (NGX_HAVE_POSIX_SEM)
     ngx_atomic_t  *wait;
     ngx_uint_t     semaphore;
