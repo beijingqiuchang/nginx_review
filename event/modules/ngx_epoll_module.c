@@ -44,7 +44,7 @@ typedef union epoll_data {
 
 struct epoll_event {
     uint32_t      events;
-    epoll_data_t  data;
+    epoll_data_t  data;  // (void *) ((uintptr_t) c | ev->instance)
 };
 
 
@@ -841,7 +841,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
         c = event_list[i].data.ptr;
 
         instance = (uintptr_t) c & 1;
-        c = (ngx_connection_t *) ((uintptr_t) c & (uintptr_t) ~1);
+        c = (ngx_connection_t *) ((uintptr_t) c & (uintptr_t) ~1);  // 获取这个事件对应的链接
 
         rev = c->read;
 
@@ -902,6 +902,7 @@ ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 
             // 是否需要延迟处理 放到不同的处理队列
             // 等释放了accept_mutex后，再处理队里中的数据
+            // 在worker的处理流程中，是要放到延迟队列中
             if (flags & NGX_POST_EVENTS) {
                 queue = rev->accept ? &ngx_posted_accept_events
                                     : &ngx_posted_events;

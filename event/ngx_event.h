@@ -28,7 +28,7 @@ typedef struct {
 
 
 struct ngx_event_s {
-    void            *data;
+    void            *data;  // 指向自己对应的ngx_connection_t结构
 
     unsigned         write:1;
 
@@ -107,7 +107,7 @@ struct ngx_event_s {
     unsigned         available:1;
 #endif
 
-    ngx_event_handler_pt  handler;
+    ngx_event_handler_pt  handler;  // accetp有两个：ngx_event_accept(SOCK_STREAM)/ngx_event_recvmsg
 
 
 #if (NGX_HAVE_IOCP)

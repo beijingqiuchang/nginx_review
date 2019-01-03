@@ -226,6 +226,7 @@ ngx_process_events_and_timers(ngx_cycle_t *cycle)
                 return;
             }
 
+            // 如果持有锁
             if (ngx_accept_mutex_held) {
                 flags |= NGX_POST_EVENTS;
 
@@ -241,6 +242,7 @@ ngx_process_events_and_timers(ngx_cycle_t *cycle)
 
     delta = ngx_current_msec;
 
+    // 调用epoll处理触发的事件
     // ngx_epoll_process_events
     (void) ngx_process_events(cycle, timer, flags);
 
@@ -249,6 +251,7 @@ ngx_process_events_and_timers(ngx_cycle_t *cycle)
     ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0,
                    "timer delta: %M", delta);
 
+    // 先处理accept队列后，才能释放accept_mutex
     ngx_event_process_posted(cycle, &ngx_posted_accept_events);
 
     if (ngx_accept_mutex_held) {
@@ -602,6 +605,7 @@ ngx_event_process_init(ngx_cycle_t *cycle)
 
 #endif
 
+    // 延迟处理队列（accept事件/普通事件）
     ngx_queue_init(&ngx_posted_accept_events);
     ngx_queue_init(&ngx_posted_events);
 
@@ -733,7 +737,7 @@ ngx_event_process_init(ngx_cycle_t *cycle)
     cycle->free_connection_n = cycle->connection_n;
 
     /* for each listening socket */
-
+    // 为每个listen生成一个event，放入epoll中
     ls = cycle->listening.elts;
     for (i = 0; i < cycle->listening.nelts; i++) {
 
