@@ -378,7 +378,7 @@ struct ngx_http_request_s {
     void                            **srv_conf;
     void                            **loc_conf;
 
-    ngx_http_event_handler_pt         read_event_handler;
+    ngx_http_event_handler_pt         read_event_handler;  // ngx_http_block_reading
     ngx_http_event_handler_pt         write_event_handler;
 
 #if (NGX_HTTP_CACHE)
@@ -456,7 +456,7 @@ struct ngx_http_request_s {
 
     unsigned                          aio:1;
 
-    unsigned                          http_state:4;
+    unsigned                          http_state:4;  // http执行到哪一个阶段
 
     /* URI with "/." and on Win32 with "//" */
     unsigned                          complex_uri:1;

@@ -136,6 +136,7 @@ ngx_stream_init_connection(ngx_connection_t *c)
     s->connection = c;
     c->data = s;
 
+    // 取得ngx_stream_core_module模块的配置
     cscf = ngx_stream_get_module_srv_conf(s, ngx_stream_core_module);
 
     ngx_set_connection_log(c, cscf->error_log);

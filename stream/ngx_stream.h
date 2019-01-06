@@ -194,11 +194,11 @@ typedef struct {
 struct ngx_stream_session_s {
     uint32_t                       signature;         /* "STRM" */
 
-    ngx_connection_t              *connection;
+    ngx_connection_t              *connection;  // 会话的链接
 
     off_t                          received;
-    time_t                         start_sec;
-    ngx_msec_t                     start_msec;
+    time_t                         start_sec;  // 会话的开始时间秒
+    ngx_msec_t                     start_msec;  // 会话的开始时间毫秒
 
     ngx_log_handler_pt             log_handler;
 

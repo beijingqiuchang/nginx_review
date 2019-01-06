@@ -136,6 +136,8 @@ ngx_event_accept(ngx_event_t *ev)
         ngx_accept_disabled = ngx_cycle->connection_n / 8
                               - ngx_cycle->free_connection_n;
 
+        // 这里会把这个连接的读写事件，都放入到epoll中
+        // 也保证每个连接，也只会在自己的进程中处理
         c = ngx_get_connection(s, ev->log);
 
         if (c == NULL) {

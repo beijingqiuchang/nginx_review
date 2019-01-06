@@ -50,7 +50,7 @@ ngx_atomic_t         *ngx_connection_counter = &connection_counter;
 
 ngx_atomic_t         *ngx_accept_mutex_ptr;
 ngx_shmtx_t           ngx_accept_mutex;  // 进程间的互斥锁
-ngx_uint_t            ngx_use_accept_mutex;
+ngx_uint_t            ngx_use_accept_mutex;  // 是否通过加锁解决惊群效应
 ngx_uint_t            ngx_accept_events;
 ngx_uint_t            ngx_accept_mutex_held;
 ngx_msec_t            ngx_accept_mutex_delay;
@@ -222,6 +222,7 @@ ngx_process_events_and_timers(ngx_cycle_t *cycle)
             ngx_accept_disabled--;
 
         } else {
+            // 每个进程会每次都把 cycle->listening 中的read事件放入到自己的epoll中
             if (ngx_trylock_accept_mutex(cycle) == NGX_ERROR) {
                 return;
             }

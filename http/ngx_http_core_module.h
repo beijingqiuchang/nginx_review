@@ -104,7 +104,7 @@ typedef struct {
     u_char                     addr[NGX_SOCKADDR_STRLEN + 1];
 } ngx_http_listen_opt_t;
 
-
+// nginx 处理http的11个阶段
 typedef enum {
     NGX_HTTP_POST_READ_PHASE = 0,
 

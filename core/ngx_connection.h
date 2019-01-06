@@ -35,7 +35,7 @@ struct ngx_listening_s {
 #endif
 
     /* handler of accepted connection */
-    ngx_connection_handler_pt   handler;
+    ngx_connection_handler_pt   handler;  // ngx_http_init_connection / ngx_mail_init_connection / ngx_stream_init_connection
 
     void               *servers;  /* array of ngx_http_in_addr_t, for example */
 
@@ -122,16 +122,16 @@ typedef enum {
 
 
 struct ngx_connection_s {
-    void               *data;
+    void               *data;  // c->data = ngx_http_create_request(c);
     ngx_event_t        *read;  // 读事件
     ngx_event_t        *write;  // 写事件
 
     ngx_socket_t        fd;
 
-    ngx_recv_pt         recv;
-    ngx_send_pt         send;
-    ngx_recv_chain_pt   recv_chain;
-    ngx_send_chain_pt   send_chain;
+    ngx_recv_pt         recv;  // 读取的处理函数 ngx_recv
+    ngx_send_pt         send;  // 发送的处理函数 ngx_send
+    ngx_recv_chain_pt   recv_chain;  // ngx_recv_chain
+    ngx_send_chain_pt   send_chain;  // ngx_send_chain
 
     ngx_listening_t    *listening;
 
@@ -139,7 +139,7 @@ struct ngx_connection_s {
 
     ngx_log_t          *log;
 
-    ngx_pool_t         *pool;
+    ngx_pool_t         *pool;  // 自己的内存池 
 
     int                 type;
 
@@ -156,10 +156,10 @@ struct ngx_connection_s {
 
     ngx_udp_connection_t  *udp;
 
-    struct sockaddr    *local_sockaddr;
+    struct sockaddr    *local_sockaddr;  // 监听的地址信息等
     socklen_t           local_socklen;
 
-    ngx_buf_t          *buffer;
+    ngx_buf_t          *buffer;  // 存储读取出来的数据
 
     ngx_queue_t         queue;
 

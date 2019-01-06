@@ -10,7 +10,7 @@
 #include <ngx_event.h>
 
 
-ngx_queue_t  ngx_posted_accept_events;
+ngx_queue_t  ngx_posted_accept_events;  // tcp的处理:ngx_event_accept;udp:ngx_event_accept
 ngx_queue_t  ngx_posted_events;
 
 

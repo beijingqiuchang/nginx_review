@@ -10,7 +10,7 @@
 #include <ngx_event.h>
 
 
-ngx_os_io_t  ngx_io;
+ngx_os_io_t  ngx_io;  // ngx_linux_io
 
 
 static void ngx_drain_connections(ngx_cycle_t *cycle);
@@ -1261,7 +1261,9 @@ ngx_close_connection(ngx_connection_t *c)
     }
 }
 
-
+// 放入长连接队列中
+// 如果已经是在长连接队列中，也要先取出来，在放回去
+// 最近使用过的链接，都保持在队尾
 void
 ngx_reusable_connection(ngx_connection_t *c, ngx_uint_t reusable)
 {

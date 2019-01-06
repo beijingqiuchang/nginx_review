@@ -66,7 +66,7 @@ struct ngx_event_s {
     /* the pending eof reported by kqueue, epoll or in aio chain operation */
     unsigned         pending_eof:1;
 
-    unsigned         posted:1;
+    unsigned         posted:1;  // 是否放入到处理队列中
 
     unsigned         closed:1;
 
@@ -107,8 +107,12 @@ struct ngx_event_s {
     unsigned         available:1;
 #endif
 
-    ngx_event_handler_pt  handler;  // accetp有两个：ngx_event_accept(SOCK_STREAM)/ngx_event_recvmsg
-
+    /*
+       accept有两个: ngx_event_accept(SOCK_STREAM)/ngx_event_recvmsg
+       accept后的连接读处理函数: ngx_stream_session_handler/读的:ngx_http_wait_request_handler/写的:ngx_http_empty_handler
+       http在读取后的处理函数: ngx_http_process_request_line
+    */
+    ngx_event_handler_pt  handler;  
 
 #if (NGX_HAVE_IOCP)
     ngx_event_ovlp_t ovlp;
