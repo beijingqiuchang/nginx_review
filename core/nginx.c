@@ -256,6 +256,7 @@ main(int argc, char *const *argv)
     }
 
     // 传入init_cycle的原因是写到cycle->log中，并保存到全局的记录中
+    // 把传入参数保存起来，方便平滑升级
     if (ngx_save_argv(&init_cycle, argc, argv) != NGX_OK) {
         return 1;
     }

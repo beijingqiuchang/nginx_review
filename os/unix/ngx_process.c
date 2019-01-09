@@ -27,7 +27,7 @@ static void ngx_unlock_mutexes(ngx_pid_t pid);
 
 
 int              ngx_argc;
-char           **ngx_argv;
+char           **ngx_argv;  // 保存的是启动时的参数
 char           **ngx_os_argv;
 
 ngx_int_t        ngx_process_slot;  // ngx_processes的元素个数
@@ -42,6 +42,7 @@ ngx_signal_t  signals[] = {
       "reload",
       ngx_signal_handler },
 
+    // SIG_USER1 
     { ngx_signal_value(NGX_REOPEN_SIGNAL),
       "SIG" ngx_value(NGX_REOPEN_SIGNAL),
       "reopen",
@@ -62,6 +63,7 @@ ngx_signal_t  signals[] = {
       "quit",
       ngx_signal_handler },
 
+    // 停止接收消息，并使用新版本接替老版本
     { ngx_signal_value(NGX_CHANGEBIN_SIGNAL),
       "SIG" ngx_value(NGX_CHANGEBIN_SIGNAL),
       "",
@@ -373,6 +375,7 @@ ngx_signal_handler(int signo, siginfo_t *siginfo, void *ucontext)
             break;
 
         case ngx_signal_value(NGX_CHANGEBIN_SIGNAL):
+            // ngx_getppid() == ngx_parent 这个条件需要跟踪下
             if (ngx_getppid() == ngx_parent || ngx_new_binary > 0) {
 
                 /*
@@ -387,7 +390,7 @@ ngx_signal_handler(int signo, siginfo_t *siginfo, void *ucontext)
                 break;
             }
 
-            ngx_change_binary = 1;
+            ngx_change_binary = 1;  // 开始更新处理
             action = ", changing binary";
             break;
 

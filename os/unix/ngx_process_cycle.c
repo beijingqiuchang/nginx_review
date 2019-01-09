@@ -282,9 +282,11 @@ ngx_master_process_cycle(ngx_cycle_t *cycle)
                                         ngx_signal_value(NGX_REOPEN_SIGNAL));
         }
 
+        // master开始更新
         if (ngx_change_binary) {
             ngx_change_binary = 0;
             ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "changing binary");
+            // 执行新的二进制文件
             ngx_new_binary = ngx_exec_new_binary(cycle, ngx_argv);
         }
 
